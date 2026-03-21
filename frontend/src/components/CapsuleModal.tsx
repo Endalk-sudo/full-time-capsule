@@ -123,21 +123,40 @@ const CapsuleModal = ({ setIsOpen }: ModalPropType) => {
 
     const { files } = data;
 
-    const fileNames = files.map((f) => f.name);
+    // First, extract the filenames to request pre-signed URLs from the backend
+    const fileNames = files.map((f: File) => f.name);
+    
     try {
+      // 1. Get pre-signed URLs for each file
       const urls = await gerPreSignedUrls(fileNames);
 
-      const uploadPromises = await uploadFiles(files, urls);
-
+      // 2. Upload each file directly to S3 using the pre-signed URLs
+      // Note: uploadFiles now correctly uses PUT and sets Content-Type headers
+      const uploadPromises = uploadFiles(files, urls);
       await Promise.all(uploadPromises);
 
-      await createCapspule(data);
+      // 3. Transform the raw File objects into the metadata format the backend expects.
+      // Since the backend uses the filename as the key, we map it accordingly.
+      const formattedFiles = files.map((file: File) => ({
+        s3_key: file.name,
+        original_name: file.name,
+        file_size: file.size,
+        mime_type: file.type,
+      }));
+
+      // 4. Send the complete capsule data to the database
+      // This includes the metadata for the files we just successfully uploaded.
+      await createCapspule({
+        ...data,
+        files: formattedFiles,
+      });
+
+      // Close the modal after successful creation
+      setIsOpen(false);
     } catch (error) {
       setError(`error creating capsule : ${error}`);
       console.log("Error : ", error);
     }
-
-    setIsOpen(false);
   };
 
   return (

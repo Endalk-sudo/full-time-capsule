@@ -1,10 +1,21 @@
 import apiPrivate from "./apiPrivate";
 
+/**
+ * Defines the structure for a file associated with a capsule.
+ * These details are used by the backend to store file metadata.
+ */
+interface FileMetadata {
+  s3_key: string;       // Unique identifier in S3
+  original_name: string; // User-facing file name
+  file_size: number;    // Size in bytes
+  mime_type: string;     // Type of file (e.g., image/png)
+}
+
 interface CapsuleType {
   title: string;
   message: string;
   unlockDate: Date;
-  files: string[];
+  files: FileMetadata[]; // Changed from string[] to FileMetadata[] for consistency
   recipients: string[];
 }
 

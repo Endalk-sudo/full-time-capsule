@@ -12,8 +12,8 @@ redisConnection.on('connect', () => {
     console.log('Redis connected successfully');
 });
 
-redisConnection.on('error', () => {
+redisConnection.on('error', (err) => {
     console.error('Redis connection error:', err);
 });
 
-export default Redis;
+export default redisConnection;

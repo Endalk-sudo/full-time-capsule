@@ -81,9 +81,6 @@ process.on('SIGTERM', async () => {
     // Close workers
     await emailWorker.close();
 
-    // Close server
-    server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
-    });
+    console.log('Worker closed');
+    process.exit(0);
 });
