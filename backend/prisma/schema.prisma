@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  email         String   @unique
+  password_hash String
+  name          String
+  created_at    DateTime @default(now())
+
+  // Relations
+  capsules Capsule[]
+}
+
+model Capsule {
+  id           String        @id @default(uuid()) @db.Uuid
+  user_id      String        @db.Uuid
+  title        String
+  message_body String        @db.Text
+  unlock_date  DateTime
+  status       CapsuleStatus @default(LOCKED)
+  created_at   DateTime      @default(now())
+
+  // Relations
+  user       User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  files      CapsuleFile[]
+  recipients Recipient[]
+}
+
+model CapsuleFile {
+  id            String @id @default(uuid()) @db.Uuid
+  capsule_id    String @db.Uuid
+  s3_object_key String
+  file_name     String
+  file_size     String // Kept as string per your image
+  mime_type     String
+
+  // Relations
+  capsule Capsule @relation(fields: [capsule_id], references: [id], onDelete: Cascade)
+}
+
+model Recipient {
+  id              String  @id @default(uuid()) @db.Uuid
+  capsule_id      String  @db.Uuid
+  email_address   String
+  delivery_status Boolean @default(false)
+
+  // Relations
+  capsule Capsule @relation(fields: [capsule_id], references: [id], onDelete: Cascade)
+}
+
+enum CapsuleStatus {
+  LOCKED
+  SENT
+  PROCESSING
+}
