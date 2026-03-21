@@ -16,6 +16,17 @@ const checkDb = () => {
             });
 
             if (resulte.length > 0) {
+                await prisma.capsule.updateMany({
+                    where: {
+                        unlock_date: {
+                            lt: new Date(),
+                        },
+                    },
+                    data: {
+                        status: 'PROCESSING',
+                    },
+                });
+
                 const jobName = 'send-email';
 
                 const capsuleJobs = resulte.map((c) => ({ name: jobName, data: { id: c.id } }));

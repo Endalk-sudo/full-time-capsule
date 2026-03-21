@@ -1,5 +1,5 @@
-import { localstackConfig } from '../config/localStackConfig.js';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { client } from '../config/s3.js';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3UrlsSchema } from '../validations/s3.validation.js';
 
@@ -18,9 +18,6 @@ export const generatePreSignedUrl = async (req, res) => {
     const bucket = process.env.BUCKET || 'time-capsule-bucket';
 
     try {
-        // Creat a S3Client with my credentials
-        const client = new S3Client(localstackConfig);
-
         // Create a array of promise objects using fileNames ,PutObjectCommand and mainly getSignedUrl used to create the presigned url
         const allFiles = fileNames.map((fileName) => {
             const command = new PutObjectCommand({ Bucket: bucket, Key: fileName });

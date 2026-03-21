@@ -4,6 +4,7 @@ import { Worker } from 'bullmq';
 import redisConnection from '../config/redis.js';
 import { prisma } from '../config/prisma.js';
 import transporter from '../config/nodemailer.js';
+import { generateDownloadUrl } from '../utils/generateS3Link.js';
 
 const emailWorker = new Worker(
     'email-sending',
@@ -26,18 +27,25 @@ const emailWorker = new Worker(
 
             console.log('email list: ', emailList);
 
+            let downloadLinks = '';
+
+            if (result.files.length > 0) {
+                const urls = await Promise.all(generateDownloadUrl(result.files));
+                downloadLinks = urls.join('\n');
+            }
+
             const mailOptions = {
                 from: process.env.EMAIL,
                 to: emailList,
                 subject: title,
-                text: message_body,
+                text: `${message_body} ${result.files.length > 0 ? `File Download links: ${downloadLinks}` : ''}`,
             };
 
             const info = await transporter.sendMail(mailOptions);
 
             console.log('info', info);
 
-            const updatedCapsule = await prisma.capsule.update({ where: id, data: { status: 'SENT' } });
+            const updatedCapsule = await prisma.capsule.update({ where: { id: id }, data: { status: 'SENT' } });
 
             console.log('updated capusle that sent :', updatedCapsule);
         } catch (error) {
