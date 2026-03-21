@@ -1,6 +1,8 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import { Worker } from 'bullmq';
 import redisConnection from '../config/redis.js';
-import prisma from '../server.js';
+import { prisma } from '../config/prisma.js';
 import transporter from '../config/nodemailer.js';
 
 const emailWorker = new Worker(

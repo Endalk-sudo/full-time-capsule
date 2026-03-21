@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Capsule {
+  id           String        @id @db.Uuid
+  user_id      String        @db.Uuid
+  title        String
+  message_body String
+  unlock_date  DateTime
+  status       CapsuleStatus @default(LOCKED)
+  created_at   DateTime      @default(now())
+  User         User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  CapsuleFile  CapsuleFile[]
+  Recipient    Recipient[]
+}
+
+model CapsuleFile {
+  id            String  @id @db.Uuid
+  capsule_id    String  @db.Uuid
+  s3_object_key String
+  file_name     String
+  file_size     String
+  mime_type     String
+  Capsule       Capsule @relation(fields: [capsule_id], references: [id], onDelete: Cascade)
+}
+
+model Recipient {
+  id              String  @id @db.Uuid
+  capsule_id      String  @db.Uuid
+  email_address   String
+  delivery_status Boolean @default(false)
+  Capsule         Capsule @relation(fields: [capsule_id], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @db.Uuid
+  email         String    @unique
+  password_hash String
+  name          String
+  created_at    DateTime  @default(now())
+  Capsule       Capsule[]
+}
+
+enum CapsuleStatus {
+  LOCKED
+  SENT
+  PROCESSING
+}
