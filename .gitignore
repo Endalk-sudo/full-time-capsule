@@ -1,3 +1,8 @@
 */node_modules
 */.env
 node.md
+
+*/src/generated
+
+backend/src/generated
+worker/src/generated
