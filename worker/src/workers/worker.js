@@ -53,7 +53,7 @@ const emailWorker = new Worker(
 
             // If it's a permanent failure (invalid email), don't retry
             if (error.code === 'INVALID_EMAIL') {
-                console.error(`Permanent email failure for ${to}:`, error.message);
+                console.error(`Permanent email failure for ${emailList}:`, error.message);
                 throw new Error('Permanent email failure - no retry');
             }
 

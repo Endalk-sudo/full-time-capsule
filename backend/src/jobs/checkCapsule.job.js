@@ -6,30 +6,30 @@ const checkDb = () => {
     cron.schedule('* * * * *', async (ctx) => {
         console.log('****job fired******✌🏾');
         try {
-            const resulte = await prisma.capsule.findMany({
+            // Atomically update only LOCKED capsules whose unlock date has passed.
+            // This prevents race conditions where a second cron tick could pick up
+            // the same capsules before the first tick finishes processing them.
+            const { count } = await prisma.capsule.updateMany({
                 where: {
                     unlock_date: {
                         lt: new Date(),
                     },
                     status: 'LOCKED',
                 },
+                data: {
+                    status: 'PROCESSING',
+                },
             });
 
-            if (resulte.length > 0) {
-                await prisma.capsule.updateMany({
-                    where: {
-                        unlock_date: {
-                            lt: new Date(),
-                        },
-                    },
-                    data: {
-                        status: 'PROCESSING',
-                    },
+            if (count > 0) {
+                // Now query the capsules we just flipped to PROCESSING
+                const capsules = await prisma.capsule.findMany({
+                    where: { status: 'PROCESSING' },
                 });
 
                 const jobName = 'send-email';
 
-                const capsuleJobs = resulte.map((c) => ({ name: jobName, data: { id: c.id } }));
+                const capsuleJobs = capsules.map((c) => ({ name: jobName, data: { id: c.id } }));
 
                 console.log("All capsule ID's ", capsuleJobs);
 

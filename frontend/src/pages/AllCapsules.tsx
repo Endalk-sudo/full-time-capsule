@@ -45,14 +45,14 @@ const AllCapsules = () => {
                                 id: string;
                                 title: string;
                                 unlock_date: string;
-                                createdAt: string;
+                                created_at: string;
                                 status: string;
                             }) => (
                                 <CapsuleCard
                                     id={c.id}
                                     key={c.id}
                                     title={c.title}
-                                    createdAt={c.createdAt}
+                                    createdAt={c.created_at}
                                     unlockAt={format(c.unlock_date, 'PPP')}
                                     status={c.status}
                                 />

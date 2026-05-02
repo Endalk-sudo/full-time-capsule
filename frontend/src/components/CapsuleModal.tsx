@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import * as z from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useQueryClient } from '@tanstack/react-query';
 import { gerPreSignedUrls, generateUploadAbleFiles } from '@/services/s3.service';
 import { createCapspule } from '@/services/capsule.service';
 
@@ -46,6 +47,7 @@ const CapsuleModal = ({ setIsOpen }: ModalPropType) => {
     });
 
     const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
     // --- STATE FOR RECIPIENTS (EMAILS) ---
     const [emailInput, setEmailInput] = useState('');
@@ -147,6 +149,9 @@ const CapsuleModal = ({ setIsOpen }: ModalPropType) => {
                 ...data,
                 files: formattedFiles,
             });
+
+            // Invalidate the capsules cache so the list refetches
+            queryClient.invalidateQueries({ queryKey: ['capsules'] });
 
             // Close the modal after successful creation
             setIsOpen(false);

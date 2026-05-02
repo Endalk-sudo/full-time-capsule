@@ -6,13 +6,13 @@ export const createCapsuleSchema = z.object({
     unlockDate: z.iso.date(),
     files: z.array(
         z.object({
-            s3_object_key: z.string(),
-            file_name: z.string(),
+            s3_key: z.string(),
+            original_name: z.string(),
             file_size: z.number(),
             mime_type: z.string(),
         }),
     ),
-    recipients: z.array(z.object()),
+    recipients: z.array(z.string().email('Each recipient must be a valid email address')),
 });
 
 export const capsuleUrlParamSchema = z.object({

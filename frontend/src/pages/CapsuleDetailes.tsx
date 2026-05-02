@@ -98,8 +98,8 @@ const CapsuleDetailes = () => {
           <h2 className="text-xl underline">Recipient:</h2>
           <div className="mt-3 flex flex-col gap-2.5">
             {data.recipients.length > 0 ? (
-              data.recipients.map((r: { email: string; id: string }) => (
-                <Recipient email={r.email} key={r.id} />
+              data.recipients.map((r: { email_address: string; id: string }) => (
+                <Recipient email={r.email_address} key={r.id} />
               ))
             ) : (
               <p>No recipients</p>
